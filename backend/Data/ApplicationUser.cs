@@ -5,10 +5,10 @@ namespace backend.Data
     public class ApplicationUser : IdentityUser
     {
         [PersonalData]
-        public int NIM { get; set; }
+        public uint NIM { get; set; }
         [PersonalData]
         public string Password { get; set; }
         [PersonalData]
-        public bool Active { get; set; } = true;
+        public string Role { get; set; } = "user";
     }
 }

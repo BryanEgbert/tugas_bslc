@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Controllers
 {
@@ -30,7 +34,30 @@ namespace backend.Controllers
                 var result = await _signInManager.PasswordSignInAsync(userInfo, model.Password, false, false);
                 if(result.Succeeded)
                 {
-                    return Ok(result);
+                    var claims = new[] 
+                    {
+                        new Claim(JwtRegisteredClaimNames.Sub, userInfo.NIM.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Email, model.Email),
+                        new Claim("role", model.Role)
+
+                    };
+
+                    var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vwd84#gmb68nn+$(!80wu-n9u@b*!*bv(&$(b7-_yt_=l%9a!+"));
+                    var keyAlgorithm = SecurityAlgorithms.HmacSha256;
+
+                    var signingCredentials = new SigningCredentials(signingKey, keyAlgorithm);
+
+                    var token = new JwtSecurityToken(
+                        issuer: "http://localhost:5000",
+                        audience: "http://localhost:5500",
+                        claims: claims,
+                        notBefore: DateTime.Now,
+                        expires: DateTime.Now.AddDays(2),
+                        signingCredentials: signingCredentials
+                    );
+
+
+                    return Ok(new {access_token = new JwtSecurityTokenHandler().WriteToken(token), exp = token.ValidTo});
                 }
             }
             return NotFound("Wrong name or password");

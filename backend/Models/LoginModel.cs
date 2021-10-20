@@ -10,12 +10,14 @@ namespace backend.Models
     {
         [Required(ErrorMessage = "NIM missing")]
         [MaxLength(10)]
-        public int NIM { get; set; }
+        public uint NIM { get; set; }
 
         [Required(ErrorMessage = "Email missing")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password missing")]
         public string Password { get; set; }
+
+        public string Role { get; set; } = "user";
     }
 }
