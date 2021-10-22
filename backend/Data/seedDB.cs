@@ -5,24 +5,32 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace backend.Data
 {
-    public class seedDB
+    public class SeedDB
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
 			var context = serviceProvider.GetRequiredService<UserDbContext>();
 			var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+			var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+			var roleExist = roleManager.RoleExistsAsync("Admin").Result;
+
 			context.Database.EnsureCreated();
+			if(!roleExist)
+			{
+				roleManager.CreateAsync(new IdentityRole("Admin"));
+			}
 			if (!context.Users.Any())
 			{
 				ApplicationUser user = new ApplicationUser()
 				{
                     NIM = 2540120616,
+					UserName = "JoeMama",
 					Email = "test@gmail.com",
-                    Password = "JoeMama123",
-                    Role = "user"
+                    Password = "JoeMama123!"
 				};
-                
-				userManager.CreateAsync(user, "Test@123");
+
+				userManager.CreateAsync(user, "JoeMama123!");
+				userManager.AddToRoleAsync(user, "Admin");
 			}
         }
     }

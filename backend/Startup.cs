@@ -28,11 +28,11 @@ namespace backend
             
             services.AddDbContext<UserDbContext>(opt => 
             {
-                opt.UseInMemoryDatabase("Memory");
+                opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             // Identity service for managing user registration and login
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(opt => opt.User.RequireUniqueEmail = true)
                 .AddEntityFrameworkStores<UserDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -51,8 +51,8 @@ namespace backend
 				{
 					ValidateIssuer = true,
 					ValidateAudience = true,
-					ValidAudience = "https://dotnetdetail.net",
-					ValidIssuer = "https://dotnetdetail.net",
+					ValidAudience = "https://localhost:5500",
+					ValidIssuer = "https://localhost:5001",
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vwd84#gmb68nn+$(!80wu-n9u@b*!*bv(&$(b7-_yt_=l%9a!+"))
 				};
 			});
@@ -73,6 +73,7 @@ namespace backend
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "backend v1"));
             }
+			SeedDB.Initialize(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
 
             app.UseHttpsRedirection();
 

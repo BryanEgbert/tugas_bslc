@@ -9,8 +9,8 @@ namespace backend.Models
     public class LoginModel
     {
         [Required(ErrorMessage = "NIM missing")]
-        [MaxLength(10)]
         public uint NIM { get; set; }
+        public string Name { get; set; }
 
         [Required(ErrorMessage = "Email missing")]
         public string Email { get; set; }
@@ -18,6 +18,6 @@ namespace backend.Models
         [Required(ErrorMessage = "Password missing")]
         public string Password { get; set; }
 
-        public string Role { get; set; } = "user";
+        public string Role { get; set; }
     }
 }
