@@ -5,50 +5,63 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
+using System.Web;
 using backend.Data;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using backend.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            Configuration = configuration;
         }
 
+        public IConfiguration Configuration { get; }
+
         [HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<LoginModel>> Login([FromBody]LoginModel model)
+        [Route("Login")]
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<LoginModel>> Login([FromForm]LoginModel model)
         {
-            var userInfo = await _userManager.FindByEmailAsync(model.Email);
-            if(userInfo != null)
+            if(ModelState.IsValid)
             {
-				var result = await _signInManager.PasswordSignInAsync(userInfo, model.Password, false, false);
-                if(result.Succeeded)
+                var userInfo = await _userManager.FindByEmailAsync(model.Email);
+                if(userInfo != null)
                 {
-                    var jwtToken = GenerateToken(userInfo);
+                    var result = await _signInManager.PasswordSignInAsync(userInfo, model.Password, false, false);
+                    if(result.Succeeded)
+                    {
+                        var jwtToken = GenerateToken(userInfo);
 
-                    return Ok(new {access_token = jwtToken});
+                        return Ok(new {access_token = jwtToken});
+                    }
+                
                 }
-               
+                return NotFound("Wrong name or password");
             }
-            return NotFound("Wrong name or password");
+            return BadRequest("Request is not accepted");
         }
 
         [HttpPost]
-        [Route("register")]
+        [Route("Register")]
         public async Task<ActionResult<LoginModel>> Register([FromBody]LoginModel model)
         {
             var userExist = await _userManager.FindByEmailAsync(model.Email);
@@ -61,7 +74,7 @@ namespace backend.Controllers
                 NIM = model.NIM,
                 UserName = model.Name,
                 Email = model.Email,
-                Password = model.Password
+                PasswordHash = HashingService.PasswordHash(model.Password)
             };
 
             var result = await _userManager.CreateAsync(userInfo, model.Password);
@@ -111,14 +124,14 @@ namespace backend.Controllers
 		{
 			var claims = await GetValidClaims(userInfo);
 
-			var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vwd84#gmb68nn+$(!80wu-n9u@b*!*bv(&$(b7-_yt_=l%9a!+"));
+			var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]));
 			var keyAlgorithm = SecurityAlgorithms.HmacSha256;
 
 			var signingCredentials = new SigningCredentials(signingKey, keyAlgorithm);
 
 			var token = new JwtSecurityToken(
-				issuer: "http://localhost:5000",
-				audience: "http://localhost:5500",
+				issuer: "http://localhost:5001",
+				audience: "http://localhost:5001",
 				claims: claims,
 				notBefore: DateTime.Now,
 				expires: DateTime.Now.AddDays(2),

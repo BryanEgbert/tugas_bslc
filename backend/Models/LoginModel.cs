@@ -17,7 +17,5 @@ namespace backend.Models
 
         [Required(ErrorMessage = "Password missing")]
         public string Password { get; set; }
-
-        public string Role { get; set; }
     }
 }

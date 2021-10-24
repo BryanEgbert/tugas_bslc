@@ -12,12 +12,14 @@ namespace backend.Data
 			var context = serviceProvider.GetRequiredService<UserDbContext>();
 			var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 			var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-			var roleExist = roleManager.RoleExistsAsync("Admin").Result;
+			var userRoleExist = roleManager.RoleExistsAsync("User").Result;
+			var adminRoleExist = roleManager.RoleExistsAsync("Admin").Result;
 
 			context.Database.EnsureCreated();
-			if(!roleExist)
+			if(!userRoleExist && !adminRoleExist)
 			{
-				roleManager.CreateAsync(new IdentityRole("Admin"));
+				roleManager.CreateAsync(new IdentityRole("User")).GetAwaiter().GetResult();
+				roleManager.CreateAsync(new IdentityRole("Admin")).GetAwaiter().GetResult();
 			}
 			if (!context.Users.Any())
 			{
@@ -25,12 +27,11 @@ namespace backend.Data
 				{
                     NIM = 2540120616,
 					UserName = "JoeMama",
-					Email = "test@gmail.com",
-                    Password = "JoeMama123!"
+					Email = "test@gmail.com"
 				};
 
-				userManager.CreateAsync(user, "JoeMama123!");
-				userManager.AddToRoleAsync(user, "Admin");
+				userManager.CreateAsync(user, "JoeMama123!").GetAwaiter().GetResult();
+				userManager.AddToRoleAsync(user, "Admin").GetAwaiter().GetResult();
 			}
         }
     }

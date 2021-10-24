@@ -6,9 +6,5 @@ namespace backend.Data
     {
         [PersonalData]
         public uint NIM { get; set; }
-        [PersonalData]
-        public string Password { get; set; }
-        [PersonalData]
-        public string Role { get; set; } = "user";
     }
 }

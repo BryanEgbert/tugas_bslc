@@ -51,9 +51,9 @@ namespace backend
 				{
 					ValidateIssuer = true,
 					ValidateAudience = true,
-					ValidAudience = "https://localhost:5500",
-					ValidIssuer = "https://localhost:5001",
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vwd84#gmb68nn+$(!80wu-n9u@b*!*bv(&$(b7-_yt_=l%9a!+"))
+					ValidAudience = Configuration["Jwt:audience"],
+					ValidIssuer = Configuration["Jwt:issuer"],
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]))
 				};
 			});
 
@@ -71,8 +71,9 @@ namespace backend
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "backend v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BSLC backend v1"));
             }
+            
 			SeedDB.Initialize(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
 
             app.UseHttpsRedirection();

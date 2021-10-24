@@ -1,0 +1,9 @@
+nav{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+nav a{
+	padding-top: 1em;
+}
