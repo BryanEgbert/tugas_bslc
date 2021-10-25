@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace backend
 {
@@ -55,6 +56,15 @@ namespace backend
 					ValidIssuer = Configuration["Jwt:issuer"],
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]))
 				};
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context => 
+                    {
+                        if(context.Request.Cookies.ContainsKey("Access-Token"))
+                        context.Token = context.Request.Cookies["Access-Token"];
+                        return Task.CompletedTask;
+                    }
+                };
 			});
 
             services.AddControllers();
@@ -79,6 +89,12 @@ namespace backend
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(x => x
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .WithOrigins("http://127.0.0.1:5500"));
 
             app.UseAuthentication();
             app.UseAuthorization();

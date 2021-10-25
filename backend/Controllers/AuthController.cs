@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using backend.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace backend.Controllers
 {
@@ -26,20 +27,21 @@ namespace backend.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _roleManager = roleManager;
-            Configuration = configuration;
-        }
+        private readonly UserDbContext _context;
+		public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, UserDbContext context)
+		{
+			_userManager = userManager;
+			_signInManager = signInManager;
+			_roleManager = roleManager;
+			Configuration = configuration;
+			_context = context;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
         [HttpPost]
         [Route("Login")]
-        [Consumes("application/x-www-form-urlencoded")]
-        public async Task<ActionResult<LoginModel>> Login([FromForm]LoginModel model)
+        public async Task<ActionResult<LoginModel>> Login([FromBody]LoginModel model)
         {
             if(ModelState.IsValid)
             {
@@ -49,9 +51,11 @@ namespace backend.Controllers
                     var result = await _signInManager.PasswordSignInAsync(userInfo, model.Password, false, false);
                     if(result.Succeeded)
                     {
-                        var jwtToken = GenerateToken(userInfo);
+                        Task<string> jwtToken = GenerateToken(userInfo);
 
-                        return Ok(new {access_token = jwtToken});
+                        Response.Cookies.Append("Access_Token", jwtToken.GetAwaiter().GetResult(), new CookieOptions() { HttpOnly = true, SameSite = SameSiteMode.Strict });
+
+                        return Ok();
                     }
                 
                 }
@@ -80,7 +84,7 @@ namespace backend.Controllers
             var result = await _userManager.CreateAsync(userInfo, model.Password);
             if(result.Succeeded)
             {
-				await _userManager.AddToRoleAsync(userInfo, "Admin");
+				await _userManager.AddToRoleAsync(userInfo, model.Role);
 				return StatusCode(201, "User created");
             }
             return BadRequest("Failed to register user");
@@ -134,13 +138,11 @@ namespace backend.Controllers
 				audience: "http://localhost:5001",
 				claims: claims,
 				notBefore: DateTime.Now,
-				expires: DateTime.Now.AddDays(2),
 				signingCredentials: signingCredentials
 			);
 
-			string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
-
-			return jwtToken;
+			return new JwtSecurityTokenHandler().WriteToken(token); ;
 		}
 	}
+
 }
