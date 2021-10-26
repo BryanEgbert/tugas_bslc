@@ -43,25 +43,19 @@ namespace backend.Controllers
         [Route("Login")]
         public async Task<ActionResult<LoginModel>> Login([FromBody]LoginModel model)
         {
-            if(ModelState.IsValid)
+            var userInfo = await _userManager.FindByEmailAsync(model.Email);
+            if(userInfo != null)
             {
-                var userInfo = await _userManager.FindByEmailAsync(model.Email);
-                if(userInfo != null)
+                var result = await _signInManager.PasswordSignInAsync(userInfo, model.Password, false, false);
+                if(result.Succeeded)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(userInfo, model.Password, false, false);
-                    if(result.Succeeded)
-                    {
-                        Task<string> jwtToken = GenerateToken(userInfo);
+                    var jwtToken = await GenerateToken(userInfo);
 
-                        Response.Cookies.Append("Access_Token", jwtToken.GetAwaiter().GetResult(), new CookieOptions() { HttpOnly = true, SameSite = SameSiteMode.Strict });
-
-                        return Ok();
-                    }
-                
+                    return Ok(jwtToken);
                 }
-                return NotFound("Wrong name or password");
+            
             }
-            return BadRequest("Request is not accepted");
+            return NotFound("Wrong name or password");
         }
 
         [HttpPost]
@@ -108,7 +102,7 @@ namespace backend.Controllers
 			for (int i = 0; i < userRole.Count; ++i)
 			{
 				// Put role name to user claims
-				claims.Add(new Claim(ClaimTypes.Role, userRole[i]));
+				claims.Add(new Claim("role", userRole[i]));
 
 				var role = await _roleManager.FindByNameAsync(userRole[i]);
 				if (role != null)
@@ -116,7 +110,7 @@ namespace backend.Controllers
 					var roleClaims = await _roleManager.GetClaimsAsync(role);   // Get role claims
 					for (int j = 0; j < roleClaims.Count; ++i)
 					{
-						claims.Add(roleClaims[j]);  // Add role to claims
+						claims.Add(new Claim("role", roleClaims[j].Value));  // Add role to claims
 					}
 				}
 			}
@@ -124,7 +118,7 @@ namespace backend.Controllers
             return claims;
         }
 
-		private async Task<string> GenerateToken(ApplicationUser userInfo)
+		private async Task<Object> GenerateToken(ApplicationUser userInfo)
 		{
 			var claims = await GetValidClaims(userInfo);
 
@@ -134,14 +128,15 @@ namespace backend.Controllers
 			var signingCredentials = new SigningCredentials(signingKey, keyAlgorithm);
 
 			var token = new JwtSecurityToken(
-				issuer: "http://localhost:5001",
-				audience: "http://localhost:5001",
+				issuer: Configuration["Jwt:issuer"],
+				audience: Configuration["Jwt:audience"],
 				claims: claims,
 				notBefore: DateTime.Now,
+                expires: DateTime.Now.AddDays(5),
 				signingCredentials: signingCredentials
 			);
 
-			return new JwtSecurityTokenHandler().WriteToken(token); ;
+			return new { access_token = new JwtSecurityTokenHandler().WriteToken(token), exp = token.ValidTo };
 		}
 	}
 

@@ -56,15 +56,6 @@ namespace backend
 					ValidIssuer = Configuration["Jwt:issuer"],
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]))
 				};
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context => 
-                    {
-                        if(context.Request.Cookies.ContainsKey("Access-Token"))
-                        context.Token = context.Request.Cookies["Access-Token"];
-                        return Task.CompletedTask;
-                    }
-                };
 			});
 
             services.AddControllers();
