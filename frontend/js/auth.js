@@ -51,6 +51,29 @@ function register(url)
 	request.send(jsonData);
 }
 
+function getPDFAdmin() {
+	if (localStorage.getItem("access_token") && !isJwtExpired()) {
+		let request = new XMLHttpRequest();
+
+		request.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				res = JSON.parse(this.responseText);
+				for (let i = 0; i < res.file.length; i++) {
+					let fileName = res.file[i].split('\\').pop().split('/').pop();
+					document.getElementsByTagName("ul")[0].insertAdjacentHTML('beforeend', `<li><a href="${res.file[i]}">${fileName}</a> <button type="button" id="${i}" onclick="deletePDF(${i})">delete</button></li>`);
+				}
+			}
+		}
+
+		request.open("GET", "https://localhost:5001/Docs/Get", true);
+		request.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("access_token")}`);
+		request.send();
+	}
+	else {
+		window.location.replace("http://127.0.0.1:5500/frontend/login.html");
+	}
+}
+
 function getPDF()
 {
 	if (localStorage.getItem("access_token") && !isJwtExpired()) {
@@ -67,7 +90,7 @@ function getPDF()
 			}
 		}
 		
-		request.open("GET", "https://localhost:5001/Admin/Get", true);
+		request.open("GET", "https://localhost:5001/Docs/Get", true);
 		request.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("access_token")}`);
 		request.send();
 	}
@@ -82,9 +105,9 @@ function postPDF()
 	let formData = new FormData();
 
 	formData.append("File", document.getElementsByName("file")[0].files[0], document.getElementsByName("file")[0].files[0].name);
-	let request = new XMLHttpRequest();
 
-	request.open("POST", "https://localhost:5001/Admin/Post", true);
+	let request = new XMLHttpRequest();
+	request.open("POST", "https://localhost:5001/Docs/Post", true);
 	request.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
 			console.log(this.responseText)
@@ -93,6 +116,26 @@ function postPDF()
 	request.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("access_token")}`);
 	request.send(formData);
 
+}
+
+function deletePDF(index)
+{
+	var data = {};
+	data["FileName"] = document.getElementsByTagName("a")[index].getInnerHTML();
+	
+	let jsonData = JSON.stringify(data);
+
+	let request = new XMLHttpRequest();
+	request.open("DELETE", "https://localhost:5001/Docs/Delete", true);
+	request.onreadystatechange = function () {
+		if (this.readyState == 4 && this.status == 200) {
+			console.log(this.responseText)
+		}
+	}
+
+	request.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("access_token")}`);
+	request.setRequestHeader("Content-Type", "application/json");
+	request.send(jsonData);
 }
 
 function isJwtExpired()

@@ -11,13 +11,14 @@ namespace backend.Controllers
 {
 	[ApiController]
     [Route("[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-    public class AdminController : ControllerBase
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class DocsController : ControllerBase
     {
         [HttpPost]
         [Route("Post")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult> PostData([FromForm]AdminModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> PostData([FromForm]DocsModel model)
         {
             if(model.File != null)
             {
@@ -40,7 +41,8 @@ namespace backend.Controllers
 
 		[HttpDelete]
 		[Route("Delete")]
-		public ActionResult DeleteData([FromForm] AdminModel model)
+		[Authorize(Roles = "Admin")]
+		public ActionResult DeleteData([FromBody]DocsModel model)
 		{
             if(model.FileName != null)
             {
@@ -61,6 +63,7 @@ namespace backend.Controllers
 
         [HttpGet]
         [Route("Get")]
+        [Authorize(Roles = "User, Admin")]
 		public ActionResult GetData()
 		{
             var filePath = Path.Combine($"{Directory.GetCurrentDirectory()}", "File");

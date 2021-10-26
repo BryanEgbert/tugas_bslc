@@ -11,7 +11,7 @@
 	<h2>Login</h2>
 	<hr />
 
-	<div class ="form">
+	<form>
 			<label for="nim">NIM:</label>
 			<input type="text" name="nim" />
 			<br>
@@ -27,13 +27,13 @@
 			<label for="password">Password:</label>
 			<input type="password"word name="password" autocomplete="current-password"/>
 			<br>
-	</div>
+	</form>
 	<button onclick="login('https://localhost:5001/Auth/Login')"">Login</button>
 
 	<h2>Register</h2>
 	<hr />
 	
-	<div class="form">
+	<form>
 		<label for="nim">NIM:</label>
 		<input type="number" name="nim" />
 		<br>
@@ -55,7 +55,7 @@
 			<option value="User">User</option>
 			<option value="Admin">Admin</option>
 		</select>
-	</div>
+	</form>
 	<button onclick="register('https://localhost:5001/Auth/Regster')">Register</button>
 	
 </body>
