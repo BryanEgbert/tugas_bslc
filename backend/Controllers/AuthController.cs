@@ -41,6 +41,7 @@ namespace backend.Controllers
 
         [HttpPost]
         [Route("Login")]
+		[Consumes("application/json")]
         public async Task<ActionResult<LoginModel>> Login([FromBody]LoginModel model)
         {
             var userInfo = await _userManager.FindByEmailAsync(model.Email);
@@ -60,6 +61,7 @@ namespace backend.Controllers
 
         [HttpPost]
         [Route("Register")]
+		[Consumes("application/json")]
         public async Task<ActionResult<LoginModel>> Register([FromBody]LoginModel model)
         {
             var userExist = await _userManager.FindByEmailAsync(model.Email);
@@ -69,7 +71,7 @@ namespace backend.Controllers
             }
             ApplicationUser userInfo = new ApplicationUser 
             {
-                NIM = model.NIM,
+                NIM = UInt32.Parse(model.NIM),
                 UserName = model.Name,
                 Email = model.Email,
                 PasswordHash = HashingService.PasswordHash(model.Password)

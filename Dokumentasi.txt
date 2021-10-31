@@ -1,0 +1,7 @@
+Login,BackEnd = Bryant Egbert
+HTML = Nathan Alvino Fam
+HTML,CSS untuk main page = Jerry Lucas
+
+Backend: Security pake JWT, harusnya the function name tells everything. Waktu tinggal dikit, jadi harap kakak bisa ngerti codenya
+oh ya, kalo mau run backendya pake dotnet 5.0 ya, bisa didownload di website ini https://dotnet.microsoft.com/download karena
+gk sempet pasang docker biar bisa sekalian run di laptop kaka yg lagi cek

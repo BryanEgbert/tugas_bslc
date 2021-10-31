@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.Tasks;
+using backend.Formatter;
 
 namespace backend
 {
@@ -58,7 +59,7 @@ namespace backend
 				};
 			});
 
-            services.AddControllers();
+            services.AddControllers(opt => opt.InputFormatters.Insert(opt.InputFormatters.Count, new PlainTextFormatter()));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "backend", Version = "v1" });
@@ -85,7 +86,7 @@ namespace backend
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()
-                .WithOrigins("http://127.0.0.1:5500"));
+                .WithOrigins("http://127.0.0.1:5500", "https://127.0.0.1:5500"));
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -9,7 +9,9 @@ namespace backend.Models
     public class LoginModel
     {
         [Required(ErrorMessage = "NIM missing")]
-        public uint NIM { get; set; }
+        public string NIM { get; set; }
+        
+        [Required(ErrorMessage = "Name missing")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Email missing")]

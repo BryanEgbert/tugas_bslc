@@ -2,7 +2,7 @@ function login(url)
 {
 	var data = {};
 	var formData = new FormData();
-	formData.append("nim", parseInt(document.getElementsByName("nim")[0].value));
+	formData.append("nim", document.getElementsByName("nim")[0].value);
 	formData.append("name", document.getElementsByName("name")[0].value);
 	formData.append("email", document.getElementsByName("email")[0].value);
 	formData.append("password", document.getElementsByName("password")[0].value);
@@ -21,22 +21,26 @@ function login(url)
 			res = JSON.parse(this.responseText);
 			localStorage.setItem("access_token", res.access_token);
 			localStorage.setItem("exp", res.exp);
+			localStorage.setItem("email", document.getElementsByName("email")[0].value);
 		}
 	}
 	request.open('POST', url, true);
 	request.setRequestHeader("Content-Type", "application/json");
 	request.send(jsonData);
+
+	document.getElementById("loginForm").reset();
 }
 
 function register(url)
 {
 	var data = {};
+	var selectTagValue = document.getElementById("role");
 	var formData = new FormData();
-	formData.append("nim", parseInt(document.getElementsByName("nim")[0].value));
-	formData.append("name", document.getElementsByName("name")[0].value);
-	formData.append("email", document.getElementsByName("email")[0].value);
-	formData.append("password", document.getElementsByName("password")[0].value);
-	formData.append("role", document.getElementsByName("role")[0].value);
+	formData.append("nim", document.getElementsByName("nim")[1].value);
+	formData.append("name", document.getElementsByName("name")[1].value);
+	formData.append("email", document.getElementsByName("email")[1].value);
+	formData.append("password", document.getElementsByName("password")[1].value);
+	formData.append("role", selectTagValue.options[selectTagValue.selectedIndex].text);
 
 	for (let [key, value] of formData) {
 		data[key] = value;
@@ -49,10 +53,31 @@ function register(url)
 	request.open('POST', url, true);
 	request.setRequestHeader("Content-Type", "application/json");
 	request.send(jsonData);
+
+	doccument.getElementById("registerForm").reset();
+}
+
+function getUserRole()
+{
+	let request = new XMLHttpRequest();
+	request.onreadystatechange = function()
+	{
+		if(this.readyState == 4 && this.status == 200)
+		{
+			res = JSON.parse(this.responseText);
+			if(res[0] == "Admin")
+			{
+				let nav = document.getElementsByClassName("link")[0];
+				nav.insertAdjacentHTML("beforeend", '<a href="admin.html">Admin</a>')
+			}
+		}
+	}
+	request.open("POST", "https://localhost:5001/Users/User/GetUserRole", true);
+	request.send(localStorage.getItem("email"));
 }
 
 function getPDFAdmin() {
-	if (localStorage.getItem("access_token") && !isJwtExpired()) {
+	if (localStorage.getItem("access_token") && isJwtExpired() == false) {
 		let request = new XMLHttpRequest();
 
 		request.onreadystatechange = function () {
@@ -60,7 +85,7 @@ function getPDFAdmin() {
 				res = JSON.parse(this.responseText);
 				for (let i = 0; i < res.file.length; i++) {
 					let fileName = res.file[i].split('\\').pop().split('/').pop();
-					document.getElementsByTagName("ul")[0].insertAdjacentHTML('beforeend', `<li><a href="${res.file[i]}">${fileName}</a> <button type="button" id="${i}" onclick="deletePDF(${i})">delete</button></li>`);
+					document.getElementsByTagName("ul")[0].insertAdjacentHTML('beforeend', `<li><a href=""http://127.0.0.1:5500/backend/File/${fileName}">${fileName}</a> <button type="button" id="${i}" onclick="deletePDF(${i})">delete</button></li>`);
 				}
 			}
 		}
@@ -76,7 +101,7 @@ function getPDFAdmin() {
 
 function getPDF()
 {
-	if (localStorage.getItem("access_token") && !isJwtExpired()) {
+	if (localStorage.getItem("access_token") && isJwtExpired() == false) {
 		let request = new XMLHttpRequest();
 	
 		request.onreadystatechange = function() {
@@ -85,7 +110,7 @@ function getPDF()
 				for(let i = 0; i < res.file.length; i++)
 				{
 					let fileName = res.file[i].split('\\').pop().split('/').pop();
-					document.getElementsByTagName("ul")[0].insertAdjacentHTML('beforeend', `<li><a href="${res.file[i]}">${fileName}</a></li>`);
+					document.getElementsByTagName("ul")[0].insertAdjacentHTML('beforeend', `<li><a href="http://127.0.0.1:5500/backend/File/${fileName}">${fileName}</a></li>`);
 				}
 			}
 		}
@@ -143,12 +168,15 @@ function isJwtExpired()
 	let dateNow = new Date().toUTCString();
 	let expDate = new Date(localStorage.getItem("exp")).toUTCString();
 
-	if(dateNow.valueOf() > expDate.valueOf())
+	if(dateNow.valueOf() < expDate.valueOf())
+	{
+		return true;
+	}
+	else
 	{
 		return false;
 	}
 
-	return true;
 }
 
 

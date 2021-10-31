@@ -35,11 +35,13 @@ namespace backend.Controllers
             return Ok(roles);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetUserRole")]
-        public async Task<ActionResult> GetUserInRole(string roleName)
+        [Consumes("text/plain")]
+        public async Task<ActionResult> GetUserRole([FromBody]string email)
         {
-            var user = await _userManager.GetUsersInRoleAsync(roleName);
+            var userEmail = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.GetRolesAsync(userEmail);
             return Ok(user);
         }
     }

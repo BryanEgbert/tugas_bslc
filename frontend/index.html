@@ -6,20 +6,25 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/index.css">
+    <script type="text/javascript" src="js/auth.js"></script>
     <title>Binus Student Learning Community (BSLC)</title>
 </head>
 
-<body>
+<body onload="getUserRole()">
 
     <!-- Header Section Start -->
     <header class="header">
         <a href="#" class="logo">BSLC</a>
 
-        <nav class="navbar">
+        <nav class="navbar page">
             <a href="#home">home</a>
             <a href="#program">program</a>
             <a href="#contact">contact</a>
+        </nav>
+        
+        <nav class="navbar link">
             <a href="e_learning.html">E-Learning</a>
+            <a href="login.html">Login</a>
         </nav>
         
         <div id="menu-btn" class="fas fa-bars"></div>
@@ -37,9 +42,22 @@
                     melakukan pengembangan diri di organisasi maupun lingkungan sekitar.
                 </p>
             <h3>Misi</h3>
-                <p>Untuk mewujudkan visi tersebut, organisasi memiliki misi-misi sebagai berikut : Berkontribusi dalam bidang pendidikan di BINUS University dengan menciptakan suasana belajar yang menyenangkan;
-                    Menjadi wadah yang dapat membantu mahasiswa aktif BINUS University untuk mengembangkan potensi-potensi yang ada dalam diribaik softskill maupun hardskill; Bekerjasama dengan berbagai komunitas nasional dan internasional untuk mengenalkan BSLC di luar BINUS 
-                    University; Mengikuti dan mengadakan kompetisi bidang pendidikan
+                <p>Untuk mewujudkan visi tersebut, organisasi memiliki misi-misi sebagai berikut : 
+                    <ul>
+                        <li>
+                            Berkontribusi dalam bidang pendidikan di BINUS University dengan menciptakan suasana belajar yang menyenangkan
+                        </li>
+                        <li>
+                            Menjadi wadah yang dapat membantu mahasiswa aktif BINUS University untuk mengembangkan potensi-potensi yang ada dalam
+                            diribaik softskill maupun hardskill
+                        </li>
+                        <li>
+                            Bekerjasama dengan berbagai komunitas nasional dan internasional untuk mengenalkan BSLC di luar BINUS University
+                        </li>
+                        <li>
+                            Mengikuti dan mengadakan kompetisi bidang pendidikan
+                        </li>
+                    </ul>
                 </p>
         </div>
 

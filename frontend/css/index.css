@@ -39,25 +39,34 @@ html {
 }
 
 .header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
     background: #fff;
     box-shadow: var(--box-shadow);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 2rem 14.3%;
+    padding: 2rem;
+    font-size: 1.7rem;
 }
 
-.header .navbar a {
-    font-size: 1.7rem;
+.header .navbar.page a {
+    font-size: inherit;
     color: var(--light-color);
     margin-left: 2rem;
 }
 
-.header .navbar a:hover {
+.header .navbar.page a:hover {
     color: var(--main-color);
+}
+
+.header .navbar.link a {
+    font-size: inherit;
+    color: rgb(85, 211, 85);
+    margin-left: 2rem;
+}
+
+.header .navbar.link a:hover {
+    color: var(--light-color);
 }
 
 #menu-btn {
@@ -109,6 +118,14 @@ html {
 }
 
 .home .content p {
+    font-size: 1.7rem;
+    color: var(--light-color);
+    line-height: 1.8;
+    padding: 1rem 10rem 1rem 10rem;
+    text-align: justify;
+}
+
+.home .content ul {
     font-size: 1.7rem;
     color: var(--light-color);
     line-height: 1.8;
@@ -171,6 +188,10 @@ html {
     padding: 4rem 2rem;
 }
 
+.program .box-container .box:hover {
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.5);
+}
+
 .program .box-container .box h3 {
     color: var(--black);
     font-size: 2.5rem;
@@ -199,6 +220,11 @@ html {
     border-radius: .5rem;
     box-shadow: var(--box-shadow);
 }
+
+.contact .icons-container .icons:hover {
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.5);
+}
+
 
 .contact .icons-container .icons i {
     height: 6rem;
@@ -269,6 +295,7 @@ html {
 
 .contact .row form .btn:hover {
     background: var(--black);
+    color: white;
 }
 
 .btn {
@@ -277,7 +304,8 @@ html {
     padding: .8rem 3rem;
     font-size: 1.7rem;
     cursor: pointer;
-    color: #fff;
+    color: var(--black);
+    font-weight: bold;
     background: var(--main-color);
     border-radius: .5rem;
     box-shadow: var(--box-shadow);
